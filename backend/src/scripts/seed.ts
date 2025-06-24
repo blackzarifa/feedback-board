@@ -29,7 +29,6 @@ async function seed() {
     const existingUser = await userRepo.findOne({
       where: { email: 'admin@testcompany.com' },
     });
-
     if (!existingUser) {
       const passwordHash = await bcrypt.hash('password123', 10);
       await userRepo.save({
