@@ -10,24 +10,20 @@ export class CompanyService {
     private companyRepository: Repository<Company>,
   ) {}
 
-  async findAll(filters: { name?: string; slug?: string }): Promise<Company[]> {
+  async findAll(filters: { name?: string }): Promise<Company[]> {
     const query = this.companyRepository.createQueryBuilder('company');
 
     if (filters.name) {
       query.andWhere('company.name = :name', { name: filters.name });
     }
 
-    if (filters.slug) {
-      query.andWhere('company.slug = :slug', { slug: filters.slug });
-    }
-
     return await query.getMany();
   }
 
-  async findOne(id: string): Promise<Company> {
-    const company = await this.companyRepository.findOne({ where: { id } });
+  async findOne(slug: string): Promise<Company> {
+    const company = await this.companyRepository.findOne({ where: { slug } });
     if (!company) {
-      throw new NotFoundException(`Company with ID ${id} not found`);
+      throw new NotFoundException(`Company with slug ${slug} not found`);
     }
     return company;
   }

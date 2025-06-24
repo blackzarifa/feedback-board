@@ -1,17 +1,17 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CompanyService } from './company.service';
 
-@Controller('company')
+@Controller('companies')
 export class CompanyController {
   constructor(private readonly companyService: CompanyService) {}
 
   @Get()
-  findAll(@Query('name') name?: string, @Query('slug') slug?: string) {
-    return this.companyService.findAll({ name, slug });
+  findAll(@Query('name') name?: string) {
+    return this.companyService.findAll({ name });
   }
 
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.companyService.findOne(id);
+  @Get(':slug')
+  findOne(@Param('slug') slug: string) {
+    return this.companyService.findOne(slug);
   }
 }
