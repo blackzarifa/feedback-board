@@ -14,7 +14,7 @@ export class CompanyService {
     const query = this.companyRepository.createQueryBuilder('company');
 
     if (filters.name) {
-      query.andWhere('company.name = :name', { name: filters.name });
+      query.andWhere('company.name ILIKE :name', { name: `%${filters.name}%` });
     }
 
     return await query.getMany();
