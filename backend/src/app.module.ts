@@ -7,6 +7,7 @@ import { getTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
 import { CompanyModule } from './modules/company/company.module';
+import { VoteModule } from './modules/vote/vote.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CompanyModule } from './modules/company/company.module';
     AuthModule,
     FeedbackModule,
     CompanyModule,
+    VoteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
