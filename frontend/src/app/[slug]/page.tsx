@@ -146,10 +146,10 @@ export default function CompanyFeedbackPage() {
             className="pl-10"
           />
         </div>
-        <SubmitFeedbackDialog companyId={company.id} onSubmit={handleSubmitFeedback} />
+        <SubmitFeedbackDialog onSubmitAction={handleSubmitFeedback} />
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
           <TabsTrigger value="all">All</TabsTrigger>
           {Object.entries(statusConfig).map(([key, config]) => (
@@ -159,9 +159,9 @@ export default function CompanyFeedbackPage() {
             </TabsTrigger>
           ))}
         </TabsList>
-      </Tabs>
-
-      {sortedFeedback.length === 0 ? (
+        
+        <TabsContent value={activeTab} className="mt-6">
+          {sortedFeedback.length === 0 ? (
         <div className="text-center py-12">
           <MessageSquarePlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">No feedback yet</h3>
@@ -171,22 +171,24 @@ export default function CompanyFeedbackPage() {
               : 'Be the first to share your thoughts!'}
           </p>
           {!searchQuery && (
-            <SubmitFeedbackDialog companyId={company.id} onSubmit={handleSubmitFeedback} />
-          )}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {sortedFeedback.map(feedback => (
-            <FeedbackCard
-              key={feedback.id}
-              feedback={feedback}
-              hasVoted={userVotes.has(feedback.id)}
-              onVote={handleVote}
-              onUnvote={handleUnvote}
-            />
-          ))}
-        </div>
-      )}
+            <SubmitFeedbackDialog onSubmitAction={handleSubmitFeedback} />
+            )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {sortedFeedback.map(feedback => (
+              <FeedbackCard
+                key={feedback.id}
+                feedback={feedback}
+                hasVoted={userVotes.has(feedback.id)}
+                onVoteAction={handleVote}
+                onUnvoteAction={handleUnvote}
+              />
+            ))}
+          </div>
+        )}
+        </TabsContent>
+      </Tabs>
     </Container>
   );
 }
