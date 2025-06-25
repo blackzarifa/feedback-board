@@ -1,98 +1,332 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Customer Feedback Board - Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+B2B SaaS platform for collecting and prioritizing customer feedback. Companies create public boards where users submit and vote on feature requests.
 
-## Description
+## Tech Stack
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Backend**: NestJS, TypeScript, TypeORM
+- **Database**: PostgreSQL (hosted on Supabase)
+- **Authentication**: JWT (admin only)
+- **Validation**: class-validator
+- **Password Hashing**: bcrypt
 
-## Project setup
+## Architecture
 
-```bash
-$ pnpm install
+```
+backend/src/
+├── entities/              # All database entities
+│   ├── company.entity.ts
+│   ├── feedback.entity.ts
+│   ├── user.entity.ts
+│   └── vote.entity.ts
+├── modules/               # Feature modules
+│   ├── auth/             # JWT authentication
+│   ├── company/          # Company management
+│   ├── feedback/         # Feedback CRUD
+│   └── vote/             # Voting system
+├── config/               # Configuration
+│   └── typeorm.config.ts
+└── scripts/              # Utility scripts
+    └── seed.ts           # Database seeding
 ```
 
-## Compile and run the project
+## Database Schema
 
-```bash
-# development
-$ pnpm run start
+```sql
+-- Companies table
+companies (
+  id: UUID (PK)
+  name: VARCHAR(255)
+  slug: VARCHAR(255) UNIQUE
+  created_at: TIMESTAMP
+)
 
-# watch mode
-$ pnpm run start:dev
+-- Users table (admins)
+users (
+  id: UUID (PK)
+  email: VARCHAR(255) UNIQUE
+  password_hash: VARCHAR(255)
+  company_id: UUID (FK -> companies)
+  created_at: TIMESTAMP
+)
 
-# production mode
-$ pnpm run start:prod
+-- Feedback table
+feedback (
+  id: UUID (PK)
+  company_id: UUID (FK -> companies)
+  title: VARCHAR(255)
+  description: TEXT
+  category: ENUM('feature', 'bug', 'improvement', 'other')
+  status: ENUM('new', 'under_review', 'planned', 'in_progress', 'completed')
+  submitter_email: VARCHAR(255) NULLABLE
+  vote_count: INTEGER DEFAULT 0
+  created_at: TIMESTAMP
+  updated_at: TIMESTAMP
+)
+
+-- Votes table
+votes (
+  id: UUID (PK)
+  feedback_id: UUID (FK -> feedback)
+  voter_identifier: VARCHAR(255)
+  created_at: TIMESTAMP
+  UNIQUE(feedback_id, voter_identifier)
+)
 ```
 
-## Run tests
+## API Endpoints
 
-```bash
-# unit tests
-$ pnpm run test
+Base URL: `http://localhost:3001/api`
 
-# e2e tests
-$ pnpm run test:e2e
+### Authentication Endpoints
 
-# test coverage
-$ pnpm run test:cov
+#### Login
+
+```
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@techcorp.com",
+  "password": "password123"
+}
+
+Response:
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIs..."
+}
 ```
 
-## Deployment
+#### Register (Admin)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+```
+POST /api/auth/register
+Content-Type: application/json
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+{
+  "email": "newadmin@company.com",
+  "password": "securepassword",
+  "companyId": "uuid-of-company"
+}
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+Response:
+{
+  "id": "uuid",
+  "email": "newadmin@company.com",
+  "companyId": "uuid-of-company",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Company Endpoints
 
-## Resources
+#### List Companies
 
-Check out a few resources that may come in handy when working with NestJS:
+```
+GET /api/companies
+GET /api/companies?name=Tech
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+Response:
+[
+  {
+    "id": "uuid",
+    "name": "TechCorp Solutions",
+    "slug": "techcorp",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+]
+```
 
-## Support
+#### Get Company by Slug
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```
+GET /api/companies/techcorp
 
-## Stay in touch
+Response:
+{
+  "id": "uuid",
+  "name": "TechCorp Solutions",
+  "slug": "techcorp",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Feedback Endpoints
 
-## License
+#### List Feedback
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+GET /api/feedback
+GET /api/feedback?companyId=uuid
+GET /api/feedback?status=planned
+GET /api/feedback?category=feature
+GET /api/feedback?search=dark+mode
+
+Response:
+[
+  {
+    "id": "uuid",
+    "companyId": "uuid",
+    "title": "Add dark mode support",
+    "description": "It would be great to have a dark mode...",
+    "category": "feature",
+    "status": "planned",
+    "submitterEmail": "user@example.com",
+    "voteCount": 45,
+    "createdAt": "2024-01-01T00:00:00Z",
+    "updatedAt": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+#### Get Single Feedback
+
+```
+GET /api/feedback/{id}
+
+Response: Single feedback object
+```
+
+#### Submit Feedback (Public)
+
+```
+POST /api/feedback
+Content-Type: application/json
+
+{
+  "companyId": "uuid",
+  "title": "Add export functionality",
+  "description": "Need to export data as CSV",
+  "category": "feature",
+  "submitterEmail": "user@example.com" // optional
+}
+
+Response: Created feedback object
+```
+
+#### Update Feedback Status (Admin Only)
+
+```
+PATCH /api/feedback/{id}
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+{
+  "status": "in_progress"
+}
+
+Response: Updated feedback object
+```
+
+#### Delete Feedback (Admin Only)
+
+```
+DELETE /api/feedback/{id}
+Authorization: Bearer {jwt_token}
+
+Response: 200 OK
+```
+
+### Vote Endpoints
+
+#### Cast Vote (Public)
+
+```
+POST /api/votes
+Content-Type: application/json
+
+{
+  "feedbackId": "uuid"
+}
+
+Response:
+{
+  "id": "uuid",
+  "feedbackId": "uuid",
+  "voterIdentifier": "hashed-value",
+  "createdAt": "2024-01-01T00:00:00Z"
+}
+
+Note: Voter is identified by IP + User-Agent hash
+```
+
+#### Remove Vote (Public)
+
+```
+DELETE /api/votes/{feedbackId}
+
+Response: 200 OK
+
+Note: Only removes if same voter identifier
+```
+
+#### Check User Votes
+
+```
+GET /api/votes/user-votes?feedbackIds=id1,id2,id3
+
+Response:
+[
+  {
+    "id": "uuid",
+    "feedbackId": "id1",
+    "voterIdentifier": "hashed-value",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+]
+```
+
+## Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```env
+# Database
+DATABASE_URL=postgresql://user:password@host:port/database
+
+# JWT
+JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+
+# Server
+PORT=3001
+
+# Frontend URL (for CORS)
+FRONTEND_URL=http://localhost:3000
+```
+
+## Running the Backend
+
+```bash
+# Install dependencies
+cd backend
+pnpm install
+
+# Run database migrations
+pnpm typeorm migration:run
+
+# Seed test data
+pnpm seed
+
+# Development mode
+pnpm start:dev
+
+# Production build
+pnpm build
+pnpm start:prod
+```
+
+## Test Data
+
+The seed script creates:
+
+- 3 companies: TechCorp Solutions, StartupHub, DevTools Inc
+- Admin users for each company (password: `password123`)
+- 4-6 sample feedback items per company
+
+Test accounts:
+
+- `admin@techcorp.com` / `password123`
+- `admin@startuphub.com` / `password123`
+- `admin@devtools.com` / `password123`
