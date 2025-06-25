@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { getTypeOrmConfig } from './config/typeorm.config';
 import { AuthModule } from './modules/auth/auth.module';
 import { FeedbackModule } from './modules/feedback/feedback.module';
+import { CompanyModule } from './modules/company/company.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { FeedbackModule } from './modules/feedback/feedback.module';
     }),
     AuthModule,
     FeedbackModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [AppService],
