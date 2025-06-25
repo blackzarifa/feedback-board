@@ -9,16 +9,16 @@ interface VoteButtonProps {
   feedbackId: string;
   initialVoteCount: number;
   hasVoted?: boolean;
-  onVote: (feedbackId: string) => Promise<void>;
-  onUnvote: (feedbackId: string) => Promise<void>;
+  onVoteAction: (feedbackId: string) => Promise<void>;
+  onUnvoteAction: (feedbackId: string) => Promise<void>;
 }
 
 export function VoteButton({
   feedbackId,
   initialVoteCount,
   hasVoted = false,
-  onVote,
-  onUnvote,
+  onVoteAction,
+  onUnvoteAction,
 }: VoteButtonProps) {
   const [isVoted, setIsVoted] = useState(hasVoted);
   const [voteCount, setVoteCount] = useState(initialVoteCount);
@@ -30,11 +30,11 @@ export function VoteButton({
     setIsLoading(true);
     try {
       if (isVoted) {
-        await onUnvote(feedbackId);
+        await onUnvoteAction(feedbackId);
         setIsVoted(false);
         setVoteCount(prev => prev - 1);
       } else {
-        await onVote(feedbackId);
+        await onVoteAction(feedbackId);
         setIsVoted(true);
         setVoteCount(prev => prev + 1);
       }
@@ -54,8 +54,8 @@ export function VoteButton({
       className={cn(
         'flex flex-col items-center gap-1 h-auto py-2 px-3 min-w-[60px] cursor-pointer transition-all',
         isVoted
-          ? 'bg-primary text-primary-foreground hover:bg-primary/80 border-primary'
-          : 'hover:bg-accent',
+          ? 'bg-primary text-white hover:bg-primary/90 hover:text-white border-primary'
+          : 'hover:border-primary/50 hover:text-primary',
       )}
     >
       <ChevronUp className={cn('h-4 w-4', isLoading && 'animate-pulse')} />

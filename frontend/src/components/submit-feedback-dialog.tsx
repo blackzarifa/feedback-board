@@ -23,20 +23,16 @@ import { categoryConfig } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 
+import type { CreateFeedbackDTO } from '@/lib/types';
+
 interface SubmitFeedbackDialogProps {
-  companyId: string;
-  onSubmit: (data: {
-    title: string;
-    description: string;
-    category: string;
-    submitterEmail?: string;
-  }) => Promise<void>;
+  onSubmitAction: (data: Omit<CreateFeedbackDTO, 'companyId'>) => Promise<void>;
 }
 
-export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDialogProps) {
+export function SubmitFeedbackDialog({ onSubmitAction }: SubmitFeedbackDialogProps) {
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Omit<CreateFeedbackDTO, 'companyId'>>({
     title: '',
     description: '',
     category: 'feature',
@@ -53,7 +49,7 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
 
     setIsSubmitting(true);
     try {
-      await onSubmit({
+      await onSubmitAction({
         ...formData,
         submitterEmail: formData.submitterEmail || undefined,
       });
@@ -108,7 +104,9 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
             </label>
             <Select
               value={formData.category}
-              onValueChange={value => setFormData(prev => ({ ...prev, category: value }))}
+              onValueChange={value =>
+                setFormData(prev => ({ ...prev, category: value as CreateFeedbackDTO['category'] }))
+              }
             >
               <SelectTrigger id="category">
                 <SelectValue />

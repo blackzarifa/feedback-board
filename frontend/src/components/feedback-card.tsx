@@ -10,11 +10,11 @@ import type { Feedback } from '@/lib/types';
 interface FeedbackCardProps {
   feedback: Feedback;
   hasVoted?: boolean;
-  onVote: (feedbackId: string) => Promise<void>;
-  onUnvote: (feedbackId: string) => Promise<void>;
+  onVoteAction: (feedbackId: string) => Promise<void>;
+  onUnvoteAction: (feedbackId: string) => Promise<void>;
 }
 
-export function FeedbackCard({ feedback, hasVoted = false, onVote, onUnvote }: FeedbackCardProps) {
+export function FeedbackCard({ feedback, hasVoted = false, onVoteAction, onUnvoteAction }: FeedbackCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -30,8 +30,8 @@ export function FeedbackCard({ feedback, hasVoted = false, onVote, onUnvote }: F
             feedbackId={feedback.id}
             initialVoteCount={feedback.voteCount}
             hasVoted={hasVoted}
-            onVote={onVote}
-            onUnvote={onUnvote}
+            onVoteAction={onVoteAction}
+            onUnvoteAction={onUnvoteAction}
           />
         </div>
       </CardHeader>
