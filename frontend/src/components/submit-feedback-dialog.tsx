@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -9,68 +9,68 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { categoryConfig } from '@/lib/utils'
-import { toast } from 'sonner'
-import { Plus } from 'lucide-react'
+} from '@/components/ui/select';
+import { categoryConfig } from '@/lib/utils';
+import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
 
 interface SubmitFeedbackDialogProps {
-  companyId: string
+  companyId: string;
   onSubmit: (data: {
-    title: string
-    description: string
-    category: string
-    submitterEmail?: string
-  }) => Promise<void>
+    title: string;
+    description: string;
+    category: string;
+    submitterEmail?: string;
+  }) => Promise<void>;
 }
 
 export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDialogProps) {
-  const [open, setOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     category: 'feature',
-    submitterEmail: ''
-  })
+    submitterEmail: '',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     if (!formData.title.trim() || !formData.description.trim()) {
-      toast.error('Please fill in all required fields')
-      return
+      toast.error('Please fill in all required fields');
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       await onSubmit({
         ...formData,
-        submitterEmail: formData.submitterEmail || undefined
-      })
-      toast.success('Feedback submitted successfully!')
-      setOpen(false)
+        submitterEmail: formData.submitterEmail || undefined,
+      });
+      toast.success('Feedback submitted successfully!');
+      setOpen(false);
       setFormData({
         title: '',
         description: '',
         category: 'feature',
-        submitterEmail: ''
-      })
+        submitterEmail: '',
+      });
     } catch (error) {
-      toast.error('Failed to submit feedback')
+      toast.error('Failed to submit feedback');
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -96,7 +96,7 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
               id="title"
               placeholder="Brief summary of your feedback"
               value={formData.title}
-              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
               maxLength={255}
               required
             />
@@ -108,7 +108,7 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
             </label>
             <Select
               value={formData.category}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              onValueChange={value => setFormData(prev => ({ ...prev, category: value }))}
             >
               <SelectTrigger id="category">
                 <SelectValue />
@@ -134,7 +134,7 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
               id="description"
               placeholder="Provide more details about your feedback"
               value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
               rows={4}
               required
             />
@@ -149,7 +149,7 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
               type="email"
               placeholder="your@email.com"
               value={formData.submitterEmail}
-              onChange={(e) => setFormData(prev => ({ ...prev, submitterEmail: e.target.value }))}
+              onChange={e => setFormData(prev => ({ ...prev, submitterEmail: e.target.value }))}
             />
             <p className="text-xs text-muted-foreground">
               We'll only use this to update you on your feedback
@@ -172,5 +172,5 @@ export function SubmitFeedbackDialog({ companyId, onSubmit }: SubmitFeedbackDial
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
