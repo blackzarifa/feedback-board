@@ -6,6 +6,19 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  
+  /* Status Colors */
+  --color-status-new: var(--status-new);
+  --color-status-under-review: var(--status-under-review);
+  --color-status-planned: var(--status-planned);
+  --color-status-in-progress: var(--status-in-progress);
+  --color-status-completed: var(--status-completed);
+  
+  /* Category Colors */
+  --color-category-feature: var(--category-feature);
+  --color-category-bug: var(--category-bug);
+  --color-category-improvement: var(--category-improvement);
+  --color-category-other: var(--category-other);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -45,6 +58,19 @@
 
 :root {
   --radius: 0.625rem;
+  
+  /* Status Colors */
+  --status-new: oklch(0.7 0.04 256);
+  --status-under-review: oklch(0.75 0.15 60);
+  --status-planned: oklch(0.65 0.15 220);
+  --status-in-progress: oklch(0.7 0.2 40);
+  --status-completed: oklch(0.65 0.2 145);
+  
+  /* Category Colors */
+  --category-feature: oklch(0.6 0.2 260);
+  --category-bug: oklch(0.6 0.25 20);
+  --category-improvement: oklch(0.65 0.15 200);
+  --category-other: oklch(0.65 0.05 250);
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
@@ -79,6 +105,19 @@
 }
 
 .dark {
+  /* Status Colors - Dark Mode */
+  --status-new: oklch(0.4 0.04 256);
+  --status-under-review: oklch(0.55 0.15 60);
+  --status-planned: oklch(0.5 0.15 220);
+  --status-in-progress: oklch(0.55 0.2 40);
+  --status-completed: oklch(0.5 0.2 145);
+  
+  /* Category Colors - Dark Mode */
+  --category-feature: oklch(0.55 0.2 260);
+  --category-bug: oklch(0.5 0.25 20);
+  --category-improvement: oklch(0.5 0.15 200);
+  --category-other: oklch(0.45 0.05 250);
+  
   --background: oklch(0.129 0.042 264.695);
   --foreground: oklch(0.984 0.003 247.858);
   --card: oklch(0.208 0.042 265.755);
