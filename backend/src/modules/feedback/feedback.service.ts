@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Feedback } from '../../entities/feedback.entity';
@@ -66,16 +66,29 @@ export class FeedbackService {
   async update(
     id: string,
     updateFeedbackDto: UpdateFeedbackDto,
+    userCompanyId: string,
   ): Promise<Feedback> {
     const feedback = await this.findOne(id);
+    
+    // Check if the user's company matches the feedback's company
+    if (feedback.companyId !== userCompanyId) {
+      throw new ForbiddenException('You can only update feedback from your own company');
+    }
+    
     Object.assign(feedback, updateFeedbackDto);
     return await this.feedbackRepository.save(feedback);
   }
 
-  async remove(id: string): Promise<void> {
-    const result = await this.feedbackRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Feedback with ID ${id} not found`);
+  async remove(id: string, userCompanyId: string): Promise<void> {
+    // First find the feedback to check company ownership
+    const feedback = await this.findOne(id);
+    
+    // Check if the user's company matches the feedback's company
+    if (feedback.companyId !== userCompanyId) {
+      throw new ForbiddenException('You can only delete feedback from your own company');
     }
+    
+    // Delete the feedback
+    await this.feedbackRepository.delete(id);
   }
 }
