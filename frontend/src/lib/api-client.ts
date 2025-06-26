@@ -25,7 +25,10 @@ class ApiClient {
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, config);
     if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => null);
+      throw new Error(
+        errorData?.message || errorData?.error || `API Error: ${response.statusText}`
+      );
     }
 
     return response.json();

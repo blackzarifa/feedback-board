@@ -20,9 +20,21 @@ export class VoteService {
   ) {}
 
   private extractVoterIdentifier(req: Request): string {
-    const ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    let ip = req.ip || req.socket?.remoteAddress || 'unknown';
+    
+    // Normalize IPv6 localhost to IPv4
+    if (ip === '::1' || ip === '::ffff:127.0.0.1') {
+      ip = '127.0.0.1';
+    }
+    
     const userAgent = req.headers['user-agent'] || 'unknown';
     const data = `${ip}-${userAgent}`;
+    
+    // Log for debugging in development
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('Vote identifier data:', { ip, userAgent });
+    }
+    
     return crypto.createHash('sha256').update(data).digest('hex');
   }
 
@@ -94,7 +106,18 @@ export class VoteService {
         },
       });
       if (!vote) {
-        throw new NotFoundException('Vote not found');
+        // Check if feedback exists
+        const feedback = await queryRunner.manager.findOne(Feedback, {
+          where: { id: feedbackId },
+        });
+        if (!feedback) {
+          throw new NotFoundException(`Feedback with ID ${feedbackId} not found`);
+        }
+        
+        // Vote exists for feedback but not for this user
+        throw new NotFoundException(
+          'You have not voted for this feedback item'
+        );
       }
 
       // Delete vote
