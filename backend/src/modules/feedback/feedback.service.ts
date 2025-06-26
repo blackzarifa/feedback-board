@@ -79,7 +79,7 @@ export class FeedbackService {
     return await this.feedbackRepository.save(feedback);
   }
 
-  async remove(id: string, userCompanyId: string): Promise<void> {
+  async remove(id: string, userCompanyId: string): Promise<{ message: string }> {
     // First find the feedback to check company ownership
     const feedback = await this.findOne(id);
     
@@ -90,5 +90,7 @@ export class FeedbackService {
     
     // Delete the feedback
     await this.feedbackRepository.delete(id);
+    
+    return { message: 'Feedback deleted successfully' };
   }
 }
