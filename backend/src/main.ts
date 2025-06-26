@@ -6,7 +6,8 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Trust proxy headers (important for getting correct IPs)
-  app.set('trust proxy', true);
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', true);
 
   app.enableCors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
