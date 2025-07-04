@@ -150,7 +150,7 @@ export function SubmitFeedbackDialog({ onSubmitAction }: SubmitFeedbackDialogPro
               onChange={e => setFormData(prev => ({ ...prev, submitterEmail: e.target.value }))}
             />
             <p className="text-xs text-muted-foreground">
-              We'll only use this to update you on your feedback
+              We&apos;ll only use this to update you on your feedback
             </p>
           </div>
 

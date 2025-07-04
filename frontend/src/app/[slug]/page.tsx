@@ -119,7 +119,7 @@ export default function CompanyFeedbackPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Company not found</h1>
           <p className="text-muted-foreground mt-2">
-            The feedback board you're looking for doesn't exist.
+            The feedback board you&apos;re looking for doesn&apos;t exist.
           </p>
         </div>
       </Container>

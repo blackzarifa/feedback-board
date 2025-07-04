@@ -53,8 +53,8 @@ export default function AdminDashboardPage() {
         const feedbackData = await api.get<Feedback[]>(`/feedback?companyId=${user.companyId}`);
         setFeedbackItems(feedbackData);
       } catch (error) {
-        toast.error('Failed to load data');
-        console.error(error);
+        toast.error(error as string);
+        toast.error(error as string);
       }
     };
 
@@ -87,7 +87,7 @@ export default function AdminDashboardPage() {
       setFeedbackItems(prev => prev.filter(item => item.id !== deleteId));
       toast.success('Feedback deleted successfully');
     } catch (error) {
-      toast.error('Failed to delete feedback');
+      toast.error(error as string);
     } finally {
       setDeleteId(null);
     }
