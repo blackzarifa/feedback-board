@@ -62,7 +62,7 @@ export function SubmitFeedbackDialog({ onSubmitAction }: SubmitFeedbackDialogPro
         submitterEmail: '',
       });
     } catch (error) {
-      toast.error('Failed to submit feedback');
+      toast.error(error as string);
     } finally {
       setIsSubmitting(false);
     }

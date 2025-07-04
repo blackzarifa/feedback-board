@@ -159,34 +159,32 @@ export default function CompanyFeedbackPage() {
             </TabsTrigger>
           ))}
         </TabsList>
-        
+
         <TabsContent value={activeTab} className="mt-6">
           {sortedFeedback.length === 0 ? (
-        <div className="text-center py-12">
-          <MessageSquarePlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No feedback yet</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchQuery
-              ? 'No feedback matches your search.'
-              : 'Be the first to share your thoughts!'}
-          </p>
-          {!searchQuery && (
-            <SubmitFeedbackDialog onSubmitAction={handleSubmitFeedback} />
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {sortedFeedback.map(feedback => (
-              <FeedbackCard
-                key={feedback.id}
-                feedback={feedback}
-                hasVoted={userVotes.has(feedback.id)}
-                onVoteAction={handleVote}
-                onUnvoteAction={handleUnvote}
-              />
-            ))}
-          </div>
-        )}
+            <div className="text-center py-12">
+              <MessageSquarePlus className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-semibold mb-2">No feedback yet</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery
+                  ? 'No feedback matches your search.'
+                  : 'Be the first to share your thoughts!'}
+              </p>
+              {!searchQuery && <SubmitFeedbackDialog onSubmitAction={handleSubmitFeedback} />}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {sortedFeedback.map(feedback => (
+                <FeedbackCard
+                  key={feedback.id}
+                  feedback={feedback}
+                  hasVoted={userVotes.has(feedback.id)}
+                  onVoteAction={handleVote}
+                  onUnvoteAction={handleUnvote}
+                />
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </Container>

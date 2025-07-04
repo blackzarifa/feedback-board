@@ -7,7 +7,7 @@ import { Container } from '@/components/container';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
@@ -37,7 +37,6 @@ export default function AdminDashboardPage() {
   const { user, token, logout } = useAuth();
   const [company, setCompany] = useState<Company | null>(null);
   const [feedbackItems, setFeedbackItems] = useState<Feedback[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -45,7 +44,7 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
-      
+
       try {
         const companies = await api.get<Company[]>('/companies');
         const userCompany = companies.find(c => c.id === user.companyId);
@@ -56,31 +55,27 @@ export default function AdminDashboardPage() {
       } catch (error) {
         toast.error('Failed to load data');
         console.error(error);
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchData();
   }, [user]);
 
-  const handleStatusUpdate = async (feedbackId: string, newStatus: string) => {
+  const handleStatusUpdate = async (feedbackId: string, newStatus: Feedback['status']) => {
     try {
       await api.patch(
         `/feedback/${feedbackId}`,
         { status: newStatus },
-        { token }
+        { token: token || undefined },
       );
-      
+
       setFeedbackItems(prev =>
-        prev.map(item =>
-          item.id === feedbackId ? { ...item, status: newStatus } : item
-        )
+        prev.map(item => (item.id === feedbackId ? { ...item, status: newStatus } : item)),
       );
-      
+
       toast.success('Status updated successfully');
     } catch (error) {
-      toast.error('Failed to update status');
+      toast.error(error as string);
     }
   };
 
@@ -88,7 +83,7 @@ export default function AdminDashboardPage() {
     if (!deleteId || !token) return;
 
     try {
-      await api.delete<{ message: string }>(`/feedback/${deleteId}`, { token });
+      await api.delete<{ message: string }>(`/feedback/${deleteId}`, { token: token || undefined });
       setFeedbackItems(prev => prev.filter(item => item.id !== deleteId));
       toast.success('Feedback deleted successfully');
     } catch (error) {
@@ -146,9 +141,7 @@ export default function AdminDashboardPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                New Items
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">New Items</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-600">{stats.new}</div>
@@ -166,9 +159,7 @@ export default function AdminDashboardPage() {
           </Card>
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Completed
-              </CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">Completed</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
@@ -235,7 +226,9 @@ export default function AdminDashboardPage() {
                               <div className="flex items-center gap-2">
                                 <Select
                                   value={feedback.status}
-                                  onValueChange={(value) => handleStatusUpdate(feedback.id, value)}
+                                  onValueChange={value =>
+                                    handleStatusUpdate(feedback.id, value as Feedback['status'])
+                                  }
                                 >
                                   <SelectTrigger className="w-[140px] h-8">
                                     <SelectValue />
@@ -288,7 +281,7 @@ export default function AdminDashboardPage() {
           </TabsContent>
         </Tabs>
 
-        <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialog open={!!deleteId} onOpenChange={open => !open && setDeleteId(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Feedback</AlertDialogTitle>
@@ -298,7 +291,10 @@ export default function AdminDashboardPage() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
                 Delete
               </AlertDialogAction>
             </AlertDialogFooter>
