@@ -31,7 +31,17 @@ class ApiClient {
       );
     }
 
-    return response.json();
+    const text = await response.text();
+    if (!text) {
+      return null as T;
+    }
+    
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+      return JSON.parse(text);
+    }
+    
+    return null as T;
   }
 
   async get<T>(endpoint: string, options?: RequestOptions): Promise<T> {
